@@ -35,43 +35,6 @@ count_page = int(input("Count of pages: "))
 title = []
 duration = []
 link = []
-categories = []
-page_range = []
-
-##################################################################
-#Category URL get:
-
-category_url = requests.get("https://bdsmstreak.com/categories")
-category = BeautifulSoup(category_url.text,'html.parser')
-
-a_category = category.select('a[href*="category"]')
-
-for link in a_category:
-    categories.append("https://bdsmstreak.com" + link.get("href"))
-###################################################################
-#Range of pages:
-
-
-page_count_get = requests.get("https://bdsmstreak.com/category/gangbang-bdsm")
-page_count = BeautifulSoup(page_count_get.text, 'html.parser')
-count = page_count.select("ul.pagination li")
-
-
-for cnt in count:
-    page_range.append(cnt)
-
-category_count = pd.DataFrame({
-    'catogory' : categories,
-    'page_range' : page_range,
-})
-
-category_count.to_csv("./test.csv")
-
-print("Done, Stop!")
-
-lenght = len(count)
-print(lenght)
-print(count[lenght - 2].get_text())
 
 ###################################################################
 #pages = np.arange(1,count_page,1)
