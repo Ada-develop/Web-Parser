@@ -36,7 +36,17 @@ title = []
 duration = []
 link = []
 
+##################################################################
+#Category URL get:
 
+category_url = requests.get("https://bdsmstreak.com/categories")
+category = BeautifulSoup(category_url.text,'html.parser')
+
+a_category = category.select('a[href*="category"]')
+
+for link in a_category:
+    print("https://bdsmstreak.com" + link.get("href"))
+###################################################################
 #Range of pages:
 
 #pages = np.arange(1,count_page,1)
@@ -81,7 +91,7 @@ for page in range(1,count_page,1):
         dura = dur.get_text()
         duration.append(dura)
 
-    print("Current page : " + str(page_number))
+    print("Current page : " + str(page_number) + " / " + count_page)
     page_number = page_number + 1
 
 porn_movies = pd.DataFrame({
