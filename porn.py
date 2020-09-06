@@ -27,68 +27,91 @@ from random import randint
 #
 # for link in a_category:
 #     categories.append("https://bdsmstreak.com" + link.get("href"))
-#categories = []
-
-category = str(input("Category: "))
-count_page = int(input("Count of pages: "))
 
 title = []
 duration = []
 link = []
+category_movie = []
+categories = []
+page_range = []
+
+#Category URL get:
+
+category_url = requests.get("https://bdsmstreak.com/categories")
+category = BeautifulSoup(category_url.text,'html.parser')
+a_category = category.select('a[href*="category"]')
+
+for link in a_category:
+    categories.append("https://bdsmstreak.com" + link.get("href"))
+
+#Page range get:
+
+getting_range = 1
+
+for page in categories:
+    page_count_get = requests.get(page)
+    page_count = BeautifulSoup(page_count_get.text, 'html.parser')
+    count = page_count.select("ul.pagination li")
+    lenght = len(count)
+    page_range.append(count[lenght - 2].get_text())
+    name_category = page.replace("https://bdsmstreak.com/category/","")
+    print("Getting category : " + str(name_category) +" | Range is : "+ str(getting_range) + " / 44")
+    getting_range = getting_range + 1
+    sleep(randint(2,10))
+
+#Creating dictionary:
+category_page_dict = dict(zip(categories,page_range))
 
 ###################################################################
 #pages = np.arange(1,count_page,1)
 #Looping through each page
 #Request(URL) + 'html_soup' + 'porn_link'
-
 #Counting pages while looping:
-page_number = 1
+#rng_pg cat
+for cat,rng_pg in category_page_dict.items():
 
-for page in range(1,count_page,1):
-    #Requesting
+    page_number = 1
 
-    print("Requesting")
+    rng = np.arange(1,int(rng_pg),1)
 
-    page = requests.get("https://bdsmstreak.com/category/"+category+"?page=" + str(page))
+    for range in rng:
+        print("Requesting " + str(cat) + "?page=" + str(range))
+        page = requests.get(str(cat) + "?page=" + str(range))
+        soup = BeautifulSoup(page.text, 'html.parser')
+        porn = soup.findAll('a', class_='vidlink')
+        durations = soup.findAll("div", class_="duration")
+        titles = soup.findAll("div", class_="videotitle")
 
+        for links in porn:
+            print("Collect link")
+            url = "https://bdsmstreak.com" + links.get("href")
+            link.append(url)
 
-    soup = BeautifulSoup(page.text, 'html.parser')
+        for tit in titles:
+            print("Collect title")
+            name = tit.get_text()
+            title.append(name)
 
-    porn = soup.findAll('a', class_='vidlink')
+        for dur in durations:
+            print("Collect duration")
+            dura = dur.get_text()
+            duration.append(dura)
+            category_movie.append(str(cat).replace("https://bdsmstreak.com/category/","").title())
+            print("Title : " + str(tit.get_text()) +  ", Duration : " + str(dur.get_text()) + ", Category : " + str(cat).replace("https://bdsmstreak.com/category/","").title())
 
-    durations = soup.findAll("div", class_="duration")
-
-    titles = soup.findAll("div", class_="videotitle")
-
-    sleep(randint(2,10))
-
-    for links in porn:
-        print("Collect link")
-        url = "https://bdsmstreak.com" + links.get("href")
-        link.append(url)
-
-    for tit in titles:
-        print("Collect title")
-        name = tit.get_text()
-        title.append(name)
-
-    for dur in durations:
-        print("Collect duration")
-        dura = dur.get_text()
-        duration.append(dura)
-
-    print("Current page : " + str(page_number) + " / " + count_page)
-    page_number = page_number + 1
+        name_category = cat.replace("https://bdsmstreak.com/category/","")
+        print("Current category : "+ str(name_category).title() + " | Current page: " + str(page_number) + " / " + str(len(rng)))
+        page_number = page_number + 1
+        sleep(randint(2, 10))
 
 porn_movies = pd.DataFrame({
     'title' : title,
     'duration' : duration,
     'url' : link,
+    'category' : category_movie
 })
 
 #Create and write data straight to the file w+, auto-rename'ing by category
-
-with open("./data/porn_{0}.csv".format(category), "w+") as file:
+with open("./bdsm-steak.csv", "w+") as file:
     file.write(porn_movies.to_csv())
-
 #porn_movies.to_csv("./porn_hd.csv")
