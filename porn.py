@@ -41,8 +41,8 @@ category_url = requests.get("https://bdsmstreak.com/categories")
 category = BeautifulSoup(category_url.text,'html.parser')
 a_category = category.select('a[href*="category"]')
 
-for link in a_category:
-    categories.append("https://bdsmstreak.com" + link.get("href"))
+for links in a_category:
+    categories.append("https://bdsmstreak.com" + links.get("href"))
 
 #Page range get:
 
@@ -107,7 +107,7 @@ for cat,rng_pg in category_page_dict.items():
 porn_movies = pd.DataFrame({
     'title' : title,
     'duration' : duration,
-    'url' : link,
+     'url' : link,
     'category' : category_movie
 })
 
